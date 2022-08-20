@@ -1,7 +1,7 @@
 #define _GNU_SOURCE
-
+// Local includes
 #include "utils.h"
-
+// Standard library includes
 #include <stdio.h>
 #include <unistd.h>
 #include <stdarg.h>
@@ -10,6 +10,12 @@
 #include <sys/types.h>
 #include <string.h>
 
+/*
+ * @brief Prompts the user.
+ * @args format The message, as a string to format
+ *       ...    Arguments to the formatted string
+ * @return 1 if the user responded positively, 0 if not
+ */
 int prompt(const char* format, ...)
 {
 	// Prompt the user
@@ -26,6 +32,11 @@ int prompt(const char* format, ...)
 	return (c == 'y' || c == 'Y' || c == '\n') ? 1 : 0;
 }
 
+/*
+ * @brief Determines if a directory is empty
+ * @args path The path to the directory
+ * @return 1 if the directory is empty, 0 if not
+ */
 int dir_empty(const char* path)
 {
 	int count = 0;
@@ -48,6 +59,10 @@ int dir_empty(const char* path)
 		return 0;
 }
 
+/*
+ * @brief Create a path if it does not exist yet
+ * @args path The path to create
+ */
 void create_path(char* path)
 {
 	char* cursor = path;
@@ -64,6 +79,11 @@ void create_path(char* path)
 	}	
 }
 
+/*
+ * @brief Copies a directory recursively
+ * @args dest The path to copy the directory to
+ *       src  The directory to copy
+ */
 void copy_directory(char* dest, char* src)
 {
     DIR* d;
@@ -75,8 +95,6 @@ void copy_directory(char* dest, char* src)
     strcat(dest, "/");
     strcat(src, "/");
     mkdir(dest, 0777);
-
-    printf("Creating directory %s from %s\n", dest, src);
 
     if(d != NULL)
     {
@@ -110,10 +128,13 @@ void copy_directory(char* dest, char* src)
     rmdir(src);
 }
 
+/*
+ * @brief Copies a file
+ * @args dest The path to copy the file to
+ *       src  The file to copy
+ */
 void copy_file(const char* dest, const char* src)
 {
-    printf("Copying %s to %s\n", src, dest);
-
     FILE* original = fopen(src, "r");
     FILE* copy = fopen(dest, "w");
     char buffer[4096];

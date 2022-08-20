@@ -1,6 +1,7 @@
+// Local includes
 #include "trash.h"
 #include "utils.h"
-
+// Standard library includes
 #include <stdio.h>
 #include <stdlib.h>
 #include <linux/limits.h>
@@ -10,15 +11,21 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
+// Function prototypes
 static char* generate_file_name(const char* path);
 
-char info_template[] = "[Trash Info]\nPath=%s\nDeletionDate=%04d-%02d-%02dT%02d:%02d:%02d\n";
+// Globals
+const char info_template[] = "[Trash Info]\nPath=%s\nDeletionDate=%04d-%02d-%02dT%02d:%02d:%02d\n";
 
 char* files_directory = NULL;
 char* info_directory = NULL;
 size_t files_directory_length = 0;
 size_t info_directory_length = 0;
 
+/*
+ * @brief Gets the paths to the files and info directories and creates those directories if they do not exist yet
+ * @return The device (file system) on which the trash directory resides
+ */
 dev_t init_trash()
 {
 	// Get the user data directory
@@ -63,6 +70,12 @@ dev_t init_trash()
 	return file_info.st_dev;
 }
 
+/*
+ * @brief Moves/copies a file to the trash
+ * @args path            The path to the original file
+ *       is_regular_file Whether the original file is a regular file or a directory
+ *       copy            Whether the file should be copied or moved
+ */
 void trash_file(const char* path, int is_regular_file, int copy)
 {
 	// Get the name of the file
@@ -125,6 +138,12 @@ void trash_file(const char* path, int is_regular_file, int copy)
 	info_directory[info_directory_length] = '\0';
 }
 
+
+/*
+ * @brief Generate a valid file name. Files in the 'files/' directory must not have duplicate names
+ * @args path The path to the original file
+ * @return The first valid file name, as a string
+ */
 char* generate_file_name(const char* path)
 {
 	// Get the name of the file

@@ -1,9 +1,9 @@
 #define _GNU_SOURCE
-
+// Local includes
 #include "args.h"
 #include "trash.h"
 #include "utils.h"
-
+// Standard library includes
 #include <stdio.h>
 #include <stdlib.h>
 #include <linux/limits.h>

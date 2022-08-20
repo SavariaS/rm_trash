@@ -1,10 +1,19 @@
+// Local includes
 #include "args.h"
 #include "utils.h"
 
+// Standard library includes
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
 
+/*
+ * @brief Parses the command line arguments
+ * @args argc    The number of arguments
+ *       argv    The arguments
+ *       opts    The structure that will hold the parsed command line arguments
+ * @return 1 if the command line arguments were parsed successfully, 0 if not
+ */
 int parse_arguments(int argc, const char** argv, struct options* opts)
 {
 	opts->flags = 0;
@@ -69,6 +78,15 @@ int parse_arguments(int argc, const char** argv, struct options* opts)
 	return 0;
 }
 
+/*
+ * @brief  Determines if a file should be trashed from the command line arguments
+ * @args file_name    The name of the file
+ *       file_type    The type of file
+ *       file_device  The file system on which the file resides
+ *       trash_device The file system on which the trash directory resides
+ *       opts         The parsed command line arguments
+ * @return 1 if the file should be trashed, 0 if not
+ */
 int is_removeable(const char* file_name, mode_t file_type, dev_t file_device, dev_t trash_device, struct options* opts)
 {
 	// If the --force option is provided, do not prompt and always trash the file
@@ -97,7 +115,7 @@ int is_removeable(const char* file_name, mode_t file_type, dev_t file_device, de
 		}
 	}
 
-	// 
+	// If the file is on a different file system from the trash directory and one file system is being enforced, don't trash it
 	if(ONE_FSYSTEM(opts->flags) && file_device != trash_device)
 	{
 		fprintf(stderr, "rm-trash: cannot remove '%s': Different file systems\n", file_name);
@@ -132,13 +150,48 @@ int is_removeable(const char* file_name, mode_t file_type, dev_t file_device, de
 	return 1;
 }
 
+/*
+ * @brief  Returns an help message with the syntax for this command and all possible options.
+ * @return The help message.
+ */
 const char* get_help()
 {
-	return "Usage: rm-trash [OPTION]... [FILE]...\
-Move FILE(s) to trash.\n";
+	return "Usage: rm-trash [OPTION]... [FILE]...\n\
+Move FILE(s) to trash.\n\
+\n\
+  -f, --force             Never prompt, ignore nonexistent files.\n\
+  -i                      Prompt before trashing every FILE.\n\
+  -I                      Prompt once before trashing the FILE(s).\n\
+  -r, -R, --recursive     Trash directories and their content.\n\
+  -d, --dir               Remove empty directories.\n\
+  -v, --verbose           Provide verbose output of what is being done.\n\
+\n\
+    --one-file-system     Do not trash files on different file systems.\n\
+    --interactive[=WHEN]  Prompt according to WHEN: never (default), once (-I)\n\
+	                      or always (-i). Without WHEN, prompt always.\n\
+\n\
+    --no-preserve-root    Not implemented. For compatiblity with GNU coreutils\n\
+                          'rm'.\n\
+    --preserve-root[=all] Not implemented. For compatiblity with GNU coreutils\n\
+                          'rm'.\n\
+\n\
+    --help                Display this help message and exit.\n\
+    --version             Display version and exit.\n\
+\n\
+By default, rm-trash does not trash directories and their content.\n\
+\n\
+Files from a file system different from the trash directory are moved by copy.\n\
+\n\
+To remove a file whose name starts with '-', reference it from the current\n\
+directory:\n\
+    rm-trash ./-foo";
 }
 
+/*
+ * @brief  Returns the current version.
+ * @return The current version as a string.
+ */
 const char* get_version()
 {
-	return "rm-trash 0.10\n";
+	return "rm-trash 0.11";
 }
