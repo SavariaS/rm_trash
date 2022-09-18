@@ -83,8 +83,9 @@ void create_path(char* path)
  * @brief Copies a directory recursively
  * @args dest The path to copy the directory to
  *       src  The directory to copy
+ * @return 0 on success, -1 on failure
  */
-void copy_directory(char* dest, char* src)
+int copy_directory(char* dest, char* src)
 {
     DIR* d;
     struct dirent* dir;
@@ -111,11 +112,17 @@ void copy_directory(char* dest, char* src)
 
             if(dir->d_type == DT_DIR)
             {
-                copy_directory(dest, src);
+                if(copy_directory(dest, src) != 0)
+                {
+                    return -1;
+                }
             }
             else if(dir->d_type == DT_REG)
             {
-                copy_file(dest, src);
+                if(copy_file(dest, src) != 0)
+                {
+                    return -1;
+                }
             }
 
             dest[dest_len] = '\0';
@@ -125,15 +132,17 @@ void copy_directory(char* dest, char* src)
         closedir(d);
     }
 
-    rmdir(src);
+    int success = rmdir(src);
+    return success;
 }
 
 /*
  * @brief Copies a file
  * @args dest The path to copy the file to
  *       src  The file to copy
+ * @return 0 on success, -1 on failure
  */
-void copy_file(const char* dest, const char* src)
+int copy_file(const char* dest, const char* src)
 {
     FILE* original = fopen(src, "r");
     FILE* copy = fopen(dest, "w");
@@ -148,5 +157,6 @@ void copy_file(const char* dest, const char* src)
     fclose(original);
     fclose(copy);
 
-    remove(src);
+    int success = remove(src);
+    return success;
 }

@@ -26,14 +26,16 @@ void create_path(char* path);
  * @brief Copies a directory recursively
  * @args dest The path to copy the directory to
  *       src  The directory to copy
+ * @return 0 on success, -1 on failure
  */
-void copy_directory(char* dest, char* src);
+int copy_directory(char* dest, char* src);
 
 /*
  * @brief Copies a file
  * @args dest The path to copy the file to
  *       src  The file to copy
+ * @return 0 on success, -1 on failure
  */
-void copy_file(const char* dest, const char* src);
+int copy_file(const char* dest, const char* src);
 
 #endif

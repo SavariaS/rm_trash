@@ -15,7 +15,8 @@ dev_t init_trash();
  * @args path            The path to the original file
  *       is_regular_file Whether the original file is a regular file or a directory
  *       copy            Whether the file should be copied or moved
+ * @return 0 if successful, -1 if not
  */
-void trash_file(const char* path, int is_regular_file, int copy);
+int trash_file(const char* path, int is_regular_file, int copy);
 
 #endif

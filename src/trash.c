@@ -75,9 +75,13 @@ dev_t init_trash()
  * @args path            The path to the original file
  *       is_regular_file Whether the original file is a regular file or a directory
  *       copy            Whether the file should be copied or moved
+ * @return 0 if successful, -1 if not
  */
-void trash_file(const char* path, int is_regular_file, int copy)
+int trash_file(const char* path, int is_regular_file, int copy)
 {
+	// Keep track of failure
+	int success = 0;
+
 	// Get the name of the file
 	char* file_name = generate_file_name(path);
 
@@ -107,9 +111,12 @@ void trash_file(const char* path, int is_regular_file, int copy)
     {
         // Move file to trash
         int success = rename(path, files_directory);
-        if(success != 0) // If the file could not be moved to the trash, delete the info file
+
+		// If the file could not be moved to the trash, delete the info file
+        if(success != 0)
         {
             remove(info_directory);
+			success = -1;
         }
     }
     else
@@ -117,7 +124,12 @@ void trash_file(const char* path, int is_regular_file, int copy)
         // Copy the file to the trash
         if(is_regular_file)
         {
-            copy_file(files_directory, path);
+			// If the file could not be moved to the trash, delete the info file
+            if(copy_file(files_directory, path) != 0)
+			{
+				remove(info_directory);
+				success = -1;
+			}
         }
         else
         {
@@ -128,7 +140,12 @@ void trash_file(const char* path, int is_regular_file, int copy)
             char* trash_path = malloc(4096);
             strcpy(trash_path, files_directory);
 
-            copy_directory(trash_path, file_path);
+			// If the file could not be moved to the trash, delete the info file
+            if(copy_directory(trash_path, file_path) != 0)
+			{
+				remove(info_directory);
+				success = -1;
+			}
         }
     }
 
@@ -136,6 +153,9 @@ void trash_file(const char* path, int is_regular_file, int copy)
 	free(file_name);
 	files_directory[files_directory_length] = '\0';
 	info_directory[info_directory_length] = '\0';
+
+	// Return if it was successful
+	return success;
 }
 
 

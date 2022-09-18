@@ -5,10 +5,12 @@
 #include "utils.h"
 // Standard library includes
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <linux/limits.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <errno.h>
 
 int main(int argc, const char** argv)
 {
@@ -75,13 +77,38 @@ int main(int argc, const char** argv)
 				if(S_ISLNK(file_info.st_mode))
 				{
 					if(VERBOSE(opts.flags)) printf("rm-trash: Unlinking '%s'\n", argv[i]);
-					unlink(argv[i]);
+
+					// If it failed to unlink
+					if(unlink(argv[i]) != 0)
+					{
+						if(errno == EACCES)
+						{
+							fprintf(stderr, "rm-trash: Cannot remove '%s': Permission denied\n", argv[i]);
+						}
+						else
+						{
+							fprintf(stderr, "rm-trash: Cannot remove '%s': %s\n", argv[i], strerror(errno));
+						}
+					}
+					
 				}
 				// If it's an empty directory, delete it
 				else if(S_ISDIR(file_info.st_mode) && dir_empty(absolute_path))
 				{
 					if(VERBOSE(opts.flags)) printf("rm-trash: Removing empty directory '%s'\n", argv[i]);
-					rmdir(absolute_path);
+
+					// If it failed to delete the directory
+					if(rmdir(absolute_path) != 0)
+					{
+						if(errno == EACCES)
+						{
+							fprintf(stderr, "rm-trash: Cannot remove '%s': Permission denied\n", argv[i]);
+						}
+						else
+						{
+							fprintf(stderr, "rm-trash: Cannot remove '%s': %s\n", argv[i], strerror(errno));
+						}
+					}
 				}
 				// Else, trash it
 				else
@@ -99,7 +126,17 @@ int main(int argc, const char** argv)
 							printf("'%s' to trash\n", argv[i]);
 					}
 
-					trash_file(absolute_path, S_ISREG(file_info.st_mode), file_info.st_dev != device);
+					if(trash_file(absolute_path, S_ISREG(file_info.st_mode), file_info.st_dev != device) != 0)
+					{
+						if(errno == EACCES)
+						{
+							fprintf(stderr, "rm-trash: Cannot remove '%s': Permission denied\n", argv[i]);
+						}
+						else
+						{
+							fprintf(stderr, "rm-trash: Cannot remove '%s': %s\n", argv[i], strerror(errno));
+						}
+					}
 				}
 			}
 		}
