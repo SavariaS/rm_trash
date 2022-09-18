@@ -81,14 +81,7 @@ int main(int argc, const char** argv)
 					// If it failed to unlink
 					if(unlink(argv[i]) != 0)
 					{
-						if(errno == EACCES)
-						{
-							fprintf(stderr, "rm-trash: Cannot remove '%s': Permission denied\n", argv[i]);
-						}
-						else
-						{
-							fprintf(stderr, "rm-trash: Cannot remove '%s': %s\n", argv[i], strerror(errno));
-						}
+						fprintf(stderr, "rm-trash: Cannot remove '%s': %s\n", argv[i], strerror(errno));
 					}
 					
 				}
@@ -100,14 +93,7 @@ int main(int argc, const char** argv)
 					// If it failed to delete the directory
 					if(rmdir(absolute_path) != 0)
 					{
-						if(errno == EACCES)
-						{
-							fprintf(stderr, "rm-trash: Cannot remove '%s': Permission denied\n", argv[i]);
-						}
-						else
-						{
-							fprintf(stderr, "rm-trash: Cannot remove '%s': %s\n", argv[i], strerror(errno));
-						}
+						fprintf(stderr, "rm-trash: Cannot remove '%s': %s\n", argv[i], strerror(errno));
 					}
 				}
 				// Else, trash it
@@ -128,14 +114,7 @@ int main(int argc, const char** argv)
 
 					if(trash_file(absolute_path, S_ISREG(file_info.st_mode), file_info.st_dev != device) != 0)
 					{
-						if(errno == EACCES)
-						{
-							fprintf(stderr, "rm-trash: Cannot remove '%s': Permission denied\n", argv[i]);
-						}
-						else
-						{
-							fprintf(stderr, "rm-trash: Cannot remove '%s': %s\n", argv[i], strerror(errno));
-						}
+						fprintf(stderr, "rm-trash: Cannot remove '%s': %s\n", argv[i], strerror(errno));
 					}
 				}
 			}
