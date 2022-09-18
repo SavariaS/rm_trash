@@ -193,5 +193,5 @@ directory:\n\
  */
 const char* get_version()
 {
-	return "rm-trash 0.11";
+	return "rm-trash 1.0";
 }
